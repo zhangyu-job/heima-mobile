@@ -1,7 +1,16 @@
 <template>
-  <div class="home">
-   视频
-
+  <div class="my-wrapper">
+    视频
+    <div>
+      <div class="split"></div>
+      <van-skeleton title :row="3" />
+      <div class="split"></div>
+      <van-skeleton title :row="3" />
+      <div class="split"></div>
+      <van-skeleton title :row="3" />
+      <div class="split"></div>
+      <van-skeleton title :row="3" />
+    </div>
   </div>
 </template>
 
@@ -10,8 +19,6 @@
 
 export default {
   name: 'Home',
-  components: {
-
-  }
+  components: {}
 }
 </script>

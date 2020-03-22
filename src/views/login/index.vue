@@ -1,6 +1,7 @@
 <template>
-  <div class="home">
-   登录
+  <div class="container">
+   <!-- 导航显示返回箭头 -->
+    <van-nav-bar title="登录" left-arrow @click-left="$router.back()" />
 
   </div>
 </template>

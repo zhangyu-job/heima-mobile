@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div>
    问答
 
   </div>
@@ -9,9 +9,6 @@
 // @ is an alias to /src
 
 export default {
-  name: 'Home',
-  components: {
 
-  }
 }
 </script>

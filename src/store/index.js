@@ -9,7 +9,7 @@ export default new Vuex.Store({
     user: auth.getUser
   },
   mutations: {
-    // 修改token
+    // 修改token  {token,refresh_token}
     updateUser (state, payload) {
       state.user = payload.user // 定义载荷的user数据给token
       // 更新vuex时候，应该将最新数据缓存

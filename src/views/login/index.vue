@@ -22,6 +22,10 @@
 
 <script>
 // @ is an alias to /src
+// 引入login方法
+// import * as user from '@/api/user'
+import { login } from '@/api/user'
+import { mapMutations } from 'vuex' // 辅助函数，可以把mutations方法映射到methods方法中
 
 export default {
   data () {
@@ -39,6 +43,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['updateUser']), // 可以导入需要的方法
     // 检查手机号的方法
     checkMobile () {
       // 获取手机号  判断是否为空  满足手机号格式
@@ -76,12 +81,26 @@ export default {
       return true
     },
     // 登录校验
-    login () {
+    async login () {
       // 校验手机号和验证码
       if (this.checkMobile() && this.checkCode()) {
         // 如果两个值都为true  表示通过了校验
         // 校验通过之后   调用接口  判断手机号和验证码正确与否
-        console.log('校验通过')
+        // login({mobile:this.loginForm.mobile,code:this.loginForm.code})
+        try {
+          const result = await login(this.loginForm)
+          // 拿到token之后  要把token设置vuex中的state
+          // 要去修改vuex中的state必须通过mutations
+          // this.$store.commit('')  //原始方法
+          this.updateUser({ user: result }) // 相当于更新当前的token和refresh_token
+          // 判断是否有需要跳转的页面   如果有就跳转 没有就直接跳转到主页
+          const { redirectUrl } = this.$route.query // query查询参数  也就是？后面的参数表
+          // redirectUrl有值就跳转到该地址   没有就跳转到主页
+          this.$router.push(redirectUrl || '/')
+        } catch (error) {
+          // 提示消息  登录失败
+          this.$notify({ message: '手机号或验证码错误', duration: 800 })
+        }
       }
     }
   }

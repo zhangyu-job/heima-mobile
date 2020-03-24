@@ -15,7 +15,7 @@
     </van-cell-group>
     <!-- 登录按钮 -->
     <div class="login-box">
-      <van-button type="info"  size="small" block round>信息按钮</van-button>
+      <van-button type="info"  size="small" block round>登录</van-button>
     </div>
   </div>
 </template>

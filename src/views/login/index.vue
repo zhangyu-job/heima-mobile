@@ -83,7 +83,9 @@ export default {
     // 登录校验
     async login () {
       // 校验手机号和验证码
-      if (this.checkMobile() && this.checkCode()) {
+      const validateMobile = this.checkMobile()
+      const validateCode = this.checkCode()
+      if (validateMobile && validateCode) {
         // 如果两个值都为true  表示通过了校验
         // 校验通过之后   调用接口  判断手机号和验证码正确与否
         // login({mobile:this.loginForm.mobile,code:this.loginForm.code})
@@ -99,7 +101,8 @@ export default {
           this.$router.push(redirectUrl || '/')
         } catch (error) {
           // 提示消息  登录失败
-          this.$notify({ message: '手机号或验证码错误', duration: 800 })
+          // this.$notify({ message: '手机号或验证码错误', duration: 800 })
+          this.$znotify({ message: '手机号或验证码错误' })
         }
       }
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="container">
    用户
 
   </div>
@@ -9,7 +9,7 @@
 // @ is an alias to /src
 
 export default {
-  name: 'Home',
+  name: 'user',
   components: {
 
   }

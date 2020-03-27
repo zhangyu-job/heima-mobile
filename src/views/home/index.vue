@@ -1,8 +1,8 @@
 <template>
-  <div class="my-wrapper">
+  <div class="container">
     <!-- 放置tabs组件 -->
     <van-tabs >
-      <van-tab :title="`标题${item}`" v-for="item in 10" :key="item">
+      <van-tab :title="item.name" v-for="item in channels" :key="item.id">
         <!-- 生成若干个单元格 -->
         <!-- <div class="scroll-wrapper">
           <van-cell-group>
@@ -22,10 +22,26 @@
 <script>
 // @ is an alias to /src
 import ArticleList from './components/article-list'
+import { getMyChannels } from '@/api/channels'
 export default {
   name: 'Home',
   components: {
     ArticleList
+  },
+  data () {
+    return {
+      channels: [] // 用来接收频道数据
+    }
+  },
+  methods: {
+    async getMyChannels () {
+      const data = await getMyChannels() // 接收返回数据
+      this.channels = data.channels // 将数据赋值给data中的数据
+    }
+  },
+  created () {
+    // 直接获取频道数据
+    this.getMyChannels()
   }
 }
 </script>

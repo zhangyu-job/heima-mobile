@@ -19,6 +19,7 @@ ul {
 }
 .van-nav-bar .van-nav-bar__title {
   color: #fff;
+  height: 46px;
 }
 .van-nav-bar .van-nav-bar__text {
   color: #fff;

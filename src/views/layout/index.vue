@@ -6,8 +6,10 @@
 
     <!-- 二级路由组件容器 -->
     <!-- 判断当前的地址   如果是/user  则使用noTop -->
-    <div class="my-wrappe" :class="{noTop:$route.path==='/user'}"></div>
-    <router-view></router-view>
+    <div class="my-wrapper" :class="{noTop:$route.path==='/user'}">
+
+      <router-view></router-view>
+    </div>
 
     <!-- 底：标签栏组件 -->
     <!-- 开启路由模式 van-tabbar-item就可以当做router-link -->
@@ -36,7 +38,7 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
-
+//控制二级路由
   .my-wrapper{
     width: 100%;
     height: 100%;

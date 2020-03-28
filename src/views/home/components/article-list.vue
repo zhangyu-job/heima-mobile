@@ -89,6 +89,7 @@ export default {
       //   setTimeout(() => {
       //     this.finished = true // 表示数据已经加载完毕
       //   }, 1000)
+      await this.$sleep() // 人为的控制了时间  不让用户拉取太频繁
 
       const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
       // 获取内容
@@ -120,6 +121,7 @@ export default {
       //   this.successText = `更新了${arr.length}条数据`
       // }, 1000)
 
+      await this.$sleep() // 人为的控制了时间  不让用户拉取太频繁
       // 下拉刷新发送最新时间戳
       const data = await getArticles({
         channel_id: this.channel_id,

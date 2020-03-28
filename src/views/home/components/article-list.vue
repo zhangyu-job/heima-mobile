@@ -11,7 +11,7 @@
       <van-list finished-text="我是有底线的" v-model="upLoading" :finished="finished" @load="onLoad">
         <!-- 循环内容 -->
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item">
+          <van-cell v-for="item in articles" :key="item.art_id">
             <!-- 放置元素  文章列表的循环项   无图  单图  三图 -->
             <div class="article_item">
               <h3 class="van-ellipsis">PullRefresh下拉刷新PullRefresh下拉刷新下拉刷新下拉刷新</h3>
@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import { getArticles } from '@/api/articles'
 export default {
   data () {
     return {
@@ -44,30 +45,57 @@ export default {
       downLoading: false, // 下拉刷新   表示是否正在下拉刷新
       upLoading: false, // 是否开启了上拉加载
       finished: false, // 是否已经完成数据加载
-      articles: []
+      articles: [], // 文章列表
+      timestamp: null // 定义一个时间戳  存储历史时间戳
+    }
+  },
+  // props:['channel_id]  //字符串数组  接收方式
+  // props  对象形式  可以约束传入的值  必填
+  props: {
+    // key（props属性名）value（对象  配置）
+    channel_id: {
+      required: true, // 要求必须传
+      type: Number, // 表示要传的类型
+      default: null // 假如没有传入   就使用默认数据
     }
   },
   methods: {
     // 上拉加载
-    onLoad () {
-      console.log('开始加载数据')
+    async onLoad () {
+      console.log('开始加载文章列表数据')
       // 数据加载完毕   把finished设置为true   就不在请求
       //   此时强制判断总条数  超过50直接关闭
-      if (this.articles.length > 50) {
-        this.finished = true
-      } else {
-        const arr = Array.from(
-          Array(15),
-          (value, index) => this.articles.length + index + 1
-        )
-        // 上拉加载   把数据追加到数组的队尾
-        this.articles.push(...arr)
-        // 添加完数据   关掉loading
-        this.upLoading = false
-      }
+      // if (this.articles.length > 50) {
+      //   this.finished = true
+      // } else {
+      //   const arr = Array.from(
+      //     Array(15),
+      //     (value, index) => this.articles.length + index + 1
+      //   )
+      //   // 上拉加载   把数据追加到数组的队尾
+      //   this.articles.push(...arr)
+      //   // 添加完数据   关掉loading
+      //   this.upLoading = false
+      // }
+
       //   setTimeout(() => {
       //     this.finished = true // 表示数据已经加载完毕
       //   }, 1000)
+
+      const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
+      // 获取内容
+      this.articles.push(data.results) // 将数据追加到队尾
+      // 关闭加载状态
+      this.upLoading = false
+      // 将历史时间戳给timestamp   赋值之前判断历史时间戳是否为0
+      // 如果历史时间戳为0  说明没有数据了
+      if (data.pre_timestamp) {
+        // 如果有历史时间戳  说明有数据  还可以继续加载
+        this.timestamp = data.pre_timestamp
+      } else {
+        // 没有数据  结束
+        this.finished = true
+      }
     },
     // 下拉刷新
     onRefresh () {

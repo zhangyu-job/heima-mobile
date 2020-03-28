@@ -11,19 +11,27 @@
       <van-list finished-text="我是有底线的" v-model="upLoading" :finished="finished" @load="onLoad">
         <!-- 循环内容 -->
         <van-cell-group>
-          <van-cell v-for="item in articles" :key="item.art_id">
+          <!-- item.art_id此时是一个大数字的对象   v-for的key需要用字符串或数字代替 -->
+          <van-cell v-for="item in articles" :key="item.art_id.toString()">
             <!-- 放置元素  文章列表的循环项   无图  单图  三图 -->
             <div class="article_item">
-              <h3 class="van-ellipsis">PullRefresh下拉刷新PullRefresh下拉刷新下拉刷新下拉刷新</h3>
-              <div class="img_box">
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+              <h3 class="van-ellipsis">{{item.title}}</h3>
+              <!-- 根据封面类型判断单图 三图 无图 -->
+              <!-- 三图 -->
+              <div class="img_box" v-if="item.cover.type===3">
+                <van-image class="w33" fit="cover" :src="item.cover.images[0]" />
+                <van-image class="w33" fit="cover" :src="item.cover.images[1]" />
+                <van-image class="w33" fit="cover" :src="item.cover.images[2]" />
               </div>
+              <!-- 单图 -->
+              <div class="img_box" v-if="item.cover.type===1">
+                <van-image class="w100" fit="cover" :src="item.cover.images[0]" />
+              </div>
+
               <div class="info_box">
-                <span>你像一阵风</span>
-                <span>8评论</span>
-                <span>10分钟前</span>
+                <span>{{item.aut_name}}</span>
+                <span>{{item.comm_count}}</span>
+                <span>{{item.pubdate}}</span>
                 <span class="close">
                   <van-icon name="cross"></van-icon>
                 </span>
@@ -84,7 +92,7 @@ export default {
 
       const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
       // 获取内容
-      this.articles.push(...data.results) // 将数据追加到队尾
+      this.articles.push(...data.results) // 将数据追加到队尾   这里需要一项一项追加，而不是直接追加数组
       // 关闭加载状态
       this.upLoading = false
       // 将历史时间戳给timestamp   赋值之前判断历史时间戳是否为0

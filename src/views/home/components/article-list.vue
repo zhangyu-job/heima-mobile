@@ -84,7 +84,7 @@ export default {
 
       const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
       // 获取内容
-      this.articles.push(data.results) // 将数据追加到队尾
+      this.articles.push(...data.results) // 将数据追加到队尾
       // 关闭加载状态
       this.upLoading = false
       // 将历史时间戳给timestamp   赋值之前判断历史时间戳是否为0

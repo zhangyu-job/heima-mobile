@@ -39,7 +39,8 @@ export default {
   data () {
     return {
       channels: [], // 用来接收频道数据
-      showMoreAction: false // 是否显示弹层
+      showMoreAction: false, // 是否显示弹层
+      articleId: null // 用来接收点击的文章id
     }
   },
   methods: {
@@ -48,9 +49,11 @@ export default {
       this.channels = data.channels // 将数据赋值给data中的数据
     },
     // 此方法会在article-list中触发showAction的时候触发
-    openAction () {
+    openAction (artId) {
       // 此时弹出反馈的层
       this.showMoreAction = true
+      // 把id存起来
+      this.articleId = artId
     }
   },
   created () {

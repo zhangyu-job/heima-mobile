@@ -21,12 +21,12 @@ const instance = axios.create({
 
 // token注入   应该在请求之前
 instance.interceptors.request.use(function (config) {
-  // 读取配置信息   给配置信息中注入token
-  // 将token统一注入到header中
-  //   if (config.headers.Authorization) {
-  //     config.headers.Authorization = `Bearer ${store.state.user.token}`
-  //   }
-  config.headers.Authorization && (config.headers.Authorization = `Bearer ${store.state.user.token}`)
+// 读取配置信息   给配置信息中注入token
+// 将token统一注入到header中
+  if (store.state.user.token) {
+    config.headers.Authorization = `Bearer ${store.state.user.token}`
+  }
+  //   config.headers.Authorization && (config.headers.Authorization = `Bearer ${store.state.user.token}`)
   return config
 }, function (error) {
   // 直接返回promise的错误   这样会直接进入axios的catch中

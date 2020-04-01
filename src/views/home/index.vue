@@ -27,7 +27,8 @@
     <!-- 频道编辑组件  放在弹出面板的组件 -->
     <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
       <!-- 放置频道编辑组件 -->
-      <ChannelEdit :channels="channels"></ChannelEdit>
+      <!-- 将父组件数据传给子组件 -->
+      <ChannelEdit @selectChannel="selectChannel" :channels="channels"></ChannelEdit>
     </van-action-sheet>
   </div>
 </template>
@@ -58,6 +59,20 @@ export default {
     async getMyChannels () {
       const data = await getMyChannels() // 接收返回数据
       this.channels = data.channels // 将数据赋值给data中的数据
+    },
+    // 方法1  传id
+    // selectChannel (id) {
+    //   // 拿到id  找到id所对应的频道索引
+    //   const index = this.channels.findIndex(item => item.id === id)
+    //   this.activeIndex = index
+    //   this.showChannelEdit = false // 关闭弹层
+    // },
+    // 方法2  传索引
+    selectChannel (index) {
+      // 拿到id  找到id所对应的频道索引
+      // const index = this.channels.findIndex(item => item.id === id)
+      this.activeIndex = index
+      this.showChannelEdit = false // 关闭弹层
     },
     // 此方法会在article-list中触发showAction的时候触发
     openAction (artId) {

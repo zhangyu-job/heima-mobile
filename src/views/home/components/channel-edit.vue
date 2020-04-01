@@ -19,8 +19,8 @@
     <div class="channel">
       <div class="tit">可选频道：</div>
       <van-grid class="van-hairline--left">
-        <van-grid-item v-for="index in 8" :key="index">
-          <span class="f12">频道{{index}}</span>
+        <van-grid-item v-for="item in optionChannels" :key="item.id">
+          <span class="f12">{{item.name}}</span>
           <van-icon class="btn" name="plus"></van-icon>
         </van-grid-item>
       </van-grid>
@@ -29,10 +29,12 @@
 </template>
 
 <script>
+import { getAllChannels } from '@/api/channels'
 export default {
   data () {
     return {
-      editing: false
+      editing: false,
+      allChannels: [] // 定义变量  接收全部的数据
     }
   },
   props: {
@@ -41,6 +43,23 @@ export default {
       type: Array, // 数组类型
       default: () => [] // 默认空数组   箭头函数表示返回一个空数组
     }
+  },
+  methods: {
+    async getAllChannels () {
+      const data = await getAllChannels()
+      this.allChannels = data.channels // 直接把频道数据赋值给频道
+    }
+  },
+  // 计算属性是一个动态的结果  全部数据-用户频道=重新计算
+  computed: {
+    // 可选频道  计算属性要求必须有返回值
+    optionChannels () {
+      // 全部频道-用户频道
+      return this.allChannels.filter(item => !this.channels.some(o => o.id === item.id))
+    }
+  },
+  created () {
+    this.getAllChannels() // 调用组件的方法
   }
 }
 </script>

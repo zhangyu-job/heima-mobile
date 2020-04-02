@@ -13,7 +13,7 @@
           <!-- 方法1 传id -->
           <!-- <span @click="$emit('selectChannel',item.id)" class="f12">{{item.name}}</span> -->
           <!-- 方法2  传索引 -->
-          <span @click="$emit('selectChannel',index)" class="f12">{{item.name}}</span>
+          <span @click="$emit('selectChannel',index)" :class="{red:index===activeIndex}" class="f12">{{item.name}}</span>
           <!-- 叉号应该在编辑状态时候显示    推荐  第一个永远不能删除 -->
           <van-icon v-if="index!==0" class="btn" name="cross"></van-icon>
         </van-grid-item>
@@ -45,6 +45,11 @@ export default {
       requires: true, // 表示必须传递channels
       type: Array, // 数组类型
       default: () => [] // 默认空数组   箭头函数表示返回一个空数组
+    },
+    activeIndex: {
+      requires: true,
+      type: Number,
+      default: 0
     }
   },
   methods: {

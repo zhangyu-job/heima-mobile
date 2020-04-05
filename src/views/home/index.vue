@@ -28,7 +28,7 @@
     <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
       <!-- 放置频道编辑组件 -->
       <!-- 将父组件数据传给子组件 -->
-      <ChannelEdit :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels"></ChannelEdit>
+      <ChannelEdit @addChannel="addChannel" @delChannel="delChannel" :activeIndex="activeIndex" @selectChannel="selectChannel" :channels="channels"></ChannelEdit>
     </van-action-sheet>
   </div>
 </template>
@@ -37,7 +37,7 @@
 // @ is an alias to /src
 import ArticleList from './components/article-list'
 import MoreAction from './components/more-action'
-import { getMyChannels } from '@/api/channels'
+import { getMyChannels, delChannel, addChannel } from '@/api/channels'
 import { dislikeArticle, reportArticle } from '@/api/articles'
 import eventbus from '@/utils/eventbus'
 import ChannelEdit from './components/channel-edit' // 引入编辑频道组件
@@ -56,6 +56,32 @@ export default {
     }
   },
   methods: {
+    // 删除频道方法
+    async delChannel (id) {
+      // 先调用
+      console.log(id)
+
+      try {
+        await delChannel(id)
+        // 如果此时成功的resolve   应该去溢出data中的数据
+        const index = this.channels.findIndex(item => item.id === id)
+        // 根据当前删除的索引  和当前激活的索引的关系来决定 当前激活索引是否需要改变
+        if (index <= this.activeIndex) {
+          // 如果删除的索引是在当前激活索引之前的   或者等于当前激活索引的
+          // 此时把激活索引往前一位
+          this.activeIndex = this.activeIndex - 1
+        }
+        this.channels.splice(index, 1)
+      } catch (error) {
+        this.$znotify({ message: '删除频道失败' })
+      }
+    },
+    // 添加频道的方法
+    async addChannel (channel) {
+      // 这里需要 调用api 将频道写入缓存 成功之后 要将 该频道添加到 data数据
+      await addChannel(channel) // 传入参数 写入缓存
+      this.channels.push(channel)// 将添加的channel添加到 data中的channels中
+    },
     async getMyChannels () {
       const data = await getMyChannels() // 接收返回数据
       this.channels = data.channels // 将数据赋值给data中的数据

@@ -8,6 +8,7 @@
         <van-button v-else @click="editing=false" size="mini" type="danger" plain>完成</van-button>
       </div>
       <van-grid class="van-hairline--left">
+        <!-- 循环渲染我的频道 -->
         <van-grid-item v-for="(item,index) in channels" :key="item.id">
           <!-- 点击频道选项时候，需要把频道id传出去 也可以传索引 -->
           <!-- 方法1 传id -->
@@ -15,7 +16,8 @@
           <!-- 方法2  传索引 -->
           <span @click="$emit('selectChannel',index)" :class="{red:index===activeIndex}" class="f12">{{item.name}}</span>
           <!-- 叉号应该在编辑状态时候显示    推荐  第一个永远不能删除 -->
-          <van-icon v-if="index!==0" class="btn" name="cross"></van-icon>
+          <!-- 点击叉号  应该调用父组件的删除 传出当前要删除的id-->
+          <van-icon @click="$emit('delChannel',item.id)" v-if="index!==0&&editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
       </van-grid>
     </div>
@@ -24,7 +26,8 @@
       <van-grid class="van-hairline--left">
         <van-grid-item v-for="item in optionChannels" :key="item.id">
           <span class="f12">{{item.name}}</span>
-          <van-icon class="btn" name="plus"></van-icon>
+          <!-- 点击加号  并且传出频道 -->
+          <van-icon @click="$emit('addChannel', item)" class="btn" name="plus"></van-icon>
         </van-grid-item>
       </van-grid>
     </div>

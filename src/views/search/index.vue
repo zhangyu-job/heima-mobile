@@ -4,7 +4,7 @@
     <van-nav-bar left-arrow title="搜索中心" @click-left="$router.back()"></van-nav-bar>
     <!-- 导航 -->
     <!-- 联想内容 -->
-    <van-search v-model.trim="q" placeholder="请输入搜索关键词" shape="round" />
+    <van-search @search="onSearch" v-model.trim="q" placeholder="请输入搜索关键词" shape="round" />
     <!-- 判断是否有输入内容 -->
     <!-- 或者使用v-if="!q" -->
     <van-cell-group class="suggest-box" v-if="q">
@@ -14,14 +14,21 @@
     </van-cell-group>
     <!-- 历史记录部分    -->
     <div class="history-box" v-else>
-      <div class="head">
+      <!-- 如果没有历史记录   就隐藏 -->
+      <!-- 只有当历史记录存在时候   才显示头部 -->
+      <div class="head" v-if="historyList.length">
         <span>历史记录</span>
-        <van-icon name="delete"></van-icon>
+        <!-- 清空操作 -->
+        <van-icon @click="clear" name="delete"></van-icon>
       </div>
       <van-cell-group>
-        <van-cell>
-          <a class="word_btn">电脑</a>
-          <van-icon class="close_btn" slot="right-icon" name="cross" />
+        <van-cell @click="toSearchResult(item)" v-for="(item,index) in historyList" :key="index">
+          <a class="word_btn">{{item}}</a>
+          <!-- 注册点击叉号事件 -->
+          <!-- 但父组件和子组件都有点击事件时   发生了事件冒泡 -->
+          <!-- js  event.stopPagintion() -->
+          <!-- vue中国可以使用修饰符  直接阻止事件冒泡 -->
+          <van-icon @click.stop="delHistory(index)" class="close_btn" slot="right-icon" name="cross" />
         </van-cell>
       </van-cell-group>
     </div>
@@ -29,13 +36,62 @@
 </template>
 
 <script>
+const key = 'hm-94-toutiao-history' // 作为历史数据存在本地缓存中
 export default {
   name: 'search',
   data () {
     return {
-      q: ''
+      q: '', // 关键字的数据
+      historyList: JSON.parse(localStorage.getItem(key) || '[]') // 历史记录
+
+    }
+  },
+  methods: {
+    // 删除历史
+    delHistory (index) {
+      // 先在data中删除数据   然后把data中的数据同步到本地缓存
+      this.historyList.splice(index, 1)
+      localStorage.setItem(key, JSON.stringify(this.historyList))
+    },
+    toSearchResult (text) {
+      // 跳转到搜索结果页
+      // 路由传参   params  query
+      // 方法1
+      // this.$router.push('/search/result?q=' + text) // 采用query传递参数
+      // 方法2
+      this.$router.push({ path: '/search/result', query: { q: text } })
+    },
+    // 清空历史记录
+    async clear () {
+      try {
+        await this.$dialog.confirm({
+          title: '提示',
+          message: '您确定删除所有的历史记录吗？'
+        })
+        // 清空历史记录
+        this.historyList = [] // 将本地历史记录设置为空
+        localStorage.setItem(key, '[]') // 同步本地缓存
+      } catch (error) {
+        // 失败不需要处理
+      }
+    },
+    onSearch () {
+      // 判断搜索内容是否为空
+      if (!this.q) return
+      // 跳转之前  把搜索结果添加到历史记录
+      this.historyList.push(this.q)
+      // 这里需要去重  set   new Set(this.historyList)
+      // Array.from转为数组
+      this.historyList = Array.from(new Set(this.historyList))
+      // 将历史记录同步到本地缓存
+      localStorage.setItem(key, JSON.stringify(this.historyList))
+      // 搜索事件触发   跳到搜索结果页  并且携带参数
+      this.$router.push({ path: '/search/result', query: { q: this.q } })
     }
   }
+  // created () {
+  //   this.historyList = JSON.parse(localStorage.getItem(key) || '[]')
+  // }
 }
 </script>
 

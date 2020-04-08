@@ -8,8 +8,9 @@
     <!-- 判断是否有输入内容 -->
     <!-- 或者使用v-if="!q" -->
     <van-cell-group class="suggest-box" v-if="q">
-      <van-cell icon="search">
-        <span>j</span>ava
+      <!-- 循环的搜索建议 -->
+      <van-cell @click="toResult(item)" icon="search" v-for="(item,index) in suggestList" :key="index">
+        {{item}}
       </van-cell>
     </van-cell-group>
     <!-- 历史记录部分    -->
@@ -22,7 +23,7 @@
         <van-icon @click="clear" name="delete"></van-icon>
       </div>
       <van-cell-group>
-        <van-cell @click="toSearchResult(item)" v-for="(item,index) in historyList" :key="index">
+        <van-cell @click="toResult(item)" v-for="(item,index) in historyList" :key="index">
           <a class="word_btn">{{item}}</a>
           <!-- 注册点击叉号事件 -->
           <!-- 但父组件和子组件都有点击事件时   发生了事件冒泡 -->
@@ -36,14 +37,50 @@
 </template>
 
 <script>
+import { getSuggestion } from '@/api/articles'
 const key = 'hm-94-toutiao-history' // 作为历史数据存在本地缓存中
 export default {
   name: 'search',
   data () {
     return {
       q: '', // 关键字的数据
-      historyList: JSON.parse(localStorage.getItem(key) || '[]') // 历史记录
-
+      historyList: JSON.parse(localStorage.getItem(key) || '[]'), // 历史记录
+      suggestList: [] // 联想的搜索建议   任何想在视图中使用的变量都要在data中定义
+    }
+  },
+  watch: {
+    // 函数防抖
+    // q () {
+    //   // 请求接口   防抖
+    //   clearTimeout(this.timer) // 先清除掉之前的定时器
+    //   // 防抖函数
+    //   this.timer = setTimeout(async () => {
+    //     // 需要判断   当清空时候不能发送请求  但是要把联想内容清空
+    //     if (!this.q) {
+    //       this.suggestList = []
+    //       return
+    //     }
+    //     // 请求  联想搜索的建议
+    //     // 联想搜索的建议  需要 放置在一个变量中
+    //     const data = await getSuggestion({ q: this.q })
+    //     this.suggestList = data.options
+    //   }, 300)
+    // }
+    // 函数节流
+    q () {
+      if (!this.timer) {
+        this.timer = setTimeout(async () => {
+          // 先将标记设置为空
+          this.timer = null
+          // 需要判断  当清空时候不能发送请求  但是要把联想数据清空
+          if (!this.q) {
+            this.suggestList = []
+            return
+          }
+          const data = await getSuggestion({ q: this.q })
+          this.suggestList = data.options
+        }, 300)
+      }
     }
   },
   methods: {
@@ -53,12 +90,23 @@ export default {
       this.historyList.splice(index, 1)
       localStorage.setItem(key, JSON.stringify(this.historyList))
     },
-    toSearchResult (text) {
-      // 跳转到搜索结果页
-      // 路由传参   params  query
-      // 方法1
-      // this.$router.push('/search/result?q=' + text) // 采用query传递参数
-      // 方法2
+    // toSearchResult (text) {
+    //   // 跳转到搜索结果页
+    //   // 路由传参   params  query
+    //   // 方法1
+    //   // this.$router.push('/search/result?q=' + text) // 采用query传递参数
+    //   // 方法2
+    //   this.$router.push({ path: '/search/result', query: { q: text } })
+    // },
+    // 到结果页
+    toResult (text) {
+      // 应该把text放到历史记录
+      this.historyList.push(text) // 加到历史记录
+      // 去重
+      this.historyList = Array.from(new Set(this.historyList))
+      // 设置到本地缓存
+      localStorage.setItem(key, JSON.stringify(this.historyList))
+      // 跳转到搜索页
       this.$router.push({ path: '/search/result', query: { q: text } })
     },
     // 清空历史记录

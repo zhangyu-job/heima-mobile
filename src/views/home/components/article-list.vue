@@ -31,7 +31,7 @@
 
               <div class="info_box">
                 <span>{{item.aut_name}}</span>
-                <span>{{item.comm_count}}</span>
+                <span>{{item.comm_count}}评论</span>
                 <span>{{item.pubdate|relTime}}</span>
 
                 <!-- 此叉号的显示   应该根据当前的登录状态来显示   登录显示  不登录不显示 -->

@@ -9,7 +9,7 @@
           <p class="name">{{article.aut_name}}</p>
           <p class="time">{{article.pubdate|relTime}}</p>
         </div>
-        <van-button round size="small" type="info">{{article.is_followed?'已关注':'+ 关注'}}</van-button>
+        <van-button :loading="followLoading" @click="follow" round size="small" type="info">{{article.is_followed?'已关注':'+ 关注'}}</van-button>
       </div>
       <div class="content" v-html="article.content">
         <!-- 文章内容有标签有属性有样式  将标签设置到对应的元素中v-html -->
@@ -21,7 +21,14 @@
         &nbsp;&nbsp;&nbsp;&nbsp;
         <van-button round size="small" :class="{active:article.attitude===0}" plain icon="delete">不喜欢</van-button>
       </div>
-    </div>
+    </div >
+    <!-- 放置一个遮罩层 -->
+    <van-overlay :show="loading">
+      <!-- 加载进度条 -->
+      <div class="loading-container">
+        <van-loading />
+      </div>
+    </van-overlay>
   </div>
 </template>
 
@@ -29,18 +36,55 @@
 // @ is an alias to /src
 
 import { getArticleInfo } from '@/api/articles'
+import { folloeUser, unfollowUser } from '@/api/user'
 export default {
   data () {
     return {
-      article: [] // 接收文章详情数据
+      article: {}, // 接收文章详情数据
+      followLoading: false, // 是否正在点击关注
+      loading: false // 遮罩层是否隐藏
     }
   },
   methods: {
     // 获取文章详情数据
     async getArticleInfo () {
+      this.loading = true // 打开遮罩层
       // 获取参数
       const { artId } = this.$route.query // 从当前路由信息对象读取query参数
       this.article = await getArticleInfo(artId) // 得到文章结果
+      this.loading = false // 关闭遮罩层
+    },
+    // 关注或者取消关注
+    async follow () {
+      this.followLoading = true
+      try {
+        // 判断关注状态
+        if (this.article.is_followed) {
+          // 取消关注
+          await unfollowUser(this.article.aut_id)
+        } else {
+          await folloeUser({
+            target: this.article.aut_id
+          })
+        }
+        // 如果成功l
+        // pc端是重新加载
+        // 移动端不会重新加载  只是修改对应的数据状态
+        this.article.is_followed = !this.article.is_followed
+
+        if (this.article.is_followed) {
+          this.$znotify({ type: 'success', message: '关注成功' })
+        } else {
+          this.$znotify({ type: 'success', message: '已取消' })
+        }
+      } catch (error) {
+        // 失败会进入  error.message报错信息
+        // 报错提示是编译之后的代码
+        this.$znotify({ message: '操作失败' })
+      } finally {
+        // 不论成功或是失败  都会进入该函数
+        this.followLoading = false
+      }
     }
   },
   created () {
@@ -54,6 +98,16 @@ export default {
   height: 100%;
   overflow-y: auto;
   box-sizing: border-box;
+}
+.loading-container{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.van-overlay{
+  background-color: none;
 }
 .detail {
   padding: 46px 10px 44px;

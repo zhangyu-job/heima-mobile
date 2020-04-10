@@ -119,7 +119,7 @@ export default {
           }
           this.value = '' // .清空评论内容
         } catch (error) {
-          this.$znotify({ message: '评论失败' })
+          this.$gnotify({ message: '评论失败' })
         }
         this.submiting = false // 状态关闭
       } else {

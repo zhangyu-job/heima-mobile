@@ -40,7 +40,7 @@
       <van-cell icon="edit" title="编辑资料" to="/user/profile" is-link />
       <van-cell icon="chat-o" title="小智同学" to="/user/chat" is-link />
       <van-cell icon="setting-o" title="系统设置" is-link />
-      <van-cell icon="warning-o" title="退出登录" to="/login" is-link />
+      <van-cell icon="warning-o" title="退出登录" @click="lgout" is-link />
     </van-cell-group>
   </div>
 </template>
@@ -48,6 +48,7 @@
 <script>
 // @ is an alias to /src
 import { getUserInfo } from '@/api/user'
+import { mapMutations } from 'vuex'
 export default {
   data () {
     return {
@@ -55,9 +56,24 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['delUser']), // 引入删除方法
     // 获取用户个人信息
     async getUserInfo () {
       this.userInfo = await getUserInfo()
+    },
+    // 退出登录
+    async lgout () {
+      try {
+        // 清除token   用vuex
+        await this.$dialog.confirm({
+          message: '确定要退出登录吗'
+        })
+        // 确定退出
+        this.delUser() // 调用vuex中的清除token
+        this.$router.push('/login')
+      } catch (error) {
+
+      }
     }
   },
   created () {

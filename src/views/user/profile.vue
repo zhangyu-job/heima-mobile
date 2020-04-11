@@ -9,6 +9,7 @@
           height="1.5rem"
           fit="cover"
           round
+          @click="showPhoto=true"
           :src="user.photo"
         />
       </van-cell>
@@ -22,7 +23,7 @@
       <!-- 内容 -->
       <!-- 1 本地相册选择图片 -->
       <!-- 2 拍照 -->
-       <van-cell is-link title="本地相册选择图片"></van-cell>
+       <van-cell @click="openFileDialog" is-link title="本地相册选择图片"></van-cell>
        <van-cell is-link title="拍照"></van-cell>
     </van-popup>
     <!-- 放置昵称弹层 -->
@@ -48,12 +49,14 @@
           @confirm="confirmDate"
          />
     </van-popup>
+    <!-- 放置一个input：file标签  用来上传图片  不能被看到  要隐藏 -->
+    <input @change="upload" ref="myFile" type="file" style="display:none" name="" id="">
   </div>
 </template>
 
 <script>
 import dayjs from 'dayjs'
-import { getUserProfile } from '@/api/user'
+import { getUserProfile, updatePhoto } from '@/api/user'
 export default {
   data () {
     return {
@@ -76,6 +79,11 @@ export default {
     }
   },
   methods: {
+    // 打开选择图片的弹层
+    openFileDialog () {
+      this.$refs.myFile.click()
+    },
+    // 封装获取用户信息的方法
     async getUserProfile () {
       this.user = await getUserProfile()
     },
@@ -108,6 +116,15 @@ export default {
       this.user.birthday = dayjs(this.currentDate).format('YYYY-MM-DD')
       // 关闭弹层
       this.showBirthDay = false
+    },
+    // 修改头像
+    async upload () {
+      // 选择头像之后  修改头像
+      const data = new FormData()
+      data.append('photo', this.$refs.myFile.files[0])
+      const result = await updatePhoto(data)
+      this.user.photo = result.photo // 把成功上传的头像地址设置给当前data中的数据
+      this.showPhoto = false // 关闭弹层
     }
   },
   created () {

@@ -57,7 +57,10 @@
 <script>
 import dayjs from 'dayjs'
 import { getUserProfile, updatePhoto, saveUserInfo } from '@/api/user'
+import { mapMutations } from 'vuex'
 export default {
+  ...mapMutations(['updatePhoto']),
+
   data () {
     return {
       showPhoto: false, // 头像弹层
@@ -133,6 +136,8 @@ export default {
       data.append('photo', this.$refs.myFile.files[0])
       const result = await updatePhoto(data)
       this.user.photo = result.photo // 把成功上传的头像地址设置给当前data中的数据
+      // 修改成功之后  把地址给当前的vuex
+      this.updatePhoto({ photo: result.photo })
       this.showPhoto = false // 关闭弹层
     }
   },

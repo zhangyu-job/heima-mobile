@@ -56,10 +56,11 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['delUser']), // 引入删除方法
+    ...mapMutations(['delUser', 'updatePhoto']), // 引入删除方法
     // 获取用户个人信息
     async getUserInfo () {
       this.userInfo = await getUserInfo()
+      this.updatePhoto({ photo: this.userInfo.photo }) // 调用mutation来设置头像
     },
     // 退出登录
     async lgout () {

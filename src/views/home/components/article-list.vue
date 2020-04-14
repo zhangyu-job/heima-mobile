@@ -2,7 +2,7 @@
   <!-- 文章列表组件    -->
   <!-- van-list可以实现上拉加载下一页内容 -->
   <!-- 阅读记忆   上次你浏览到哪  回来还在哪 -->
-  <div class="scroll-wrapper">
+  <div class="scroll-wrapper" @scroll="remember" ref="myScroll">
     <!-- 文章列表 -->
     <!-- van-list组件  如果不加干涉  初始化完毕  就会检测   自己距离底部的长度  如果超过了
     限定，就会执行load事件 自动把绑定的loading变成true-->
@@ -74,6 +74,20 @@ export default {
         }
       }
     })
+    eventBus.$on('changeTab', (id) => {
+      // 传入的id   就是当前激活的id
+      // 判断当前的文章列表接收的id  是否等于此id表示该文章列表实例  就是需要去滚动的实例
+      if (id === this.channel_id) {
+        // 执行代码时  要保证之前的异步渲染已经完成
+        this.$nextTick(() => {
+          // 如果相等  表示要滚动此滚动条
+          if (this.scrollTop && this.$refs.myScroll) {
+            // 当滚动距离不为0  并且滚动元素 存在的情况下才去滚动
+            this.$refs.myScroll.scrollTop = this.scrollTop
+          }
+        })
+      }
+    })
   },
   computed: {
     ...mapState(['user']) // 将user对象映射到计算属性中
@@ -85,7 +99,8 @@ export default {
       upLoading: false, // 是否开启了上拉加载
       finished: false, // 是否已经完成数据加载
       articles: [], // 文章列表
-      timestamp: null // 定义一个时间戳  存储历史时间戳
+      timestamp: null, // 定义一个时间戳  存储历史时间戳
+      scrollTop: 0 // 定义滚动位置
     }
   },
   // props:['channel_id]  //字符串数组  接收方式
@@ -99,6 +114,15 @@ export default {
     }
   },
   methods: {
+    // 记录滚动
+    remember (event) {
+      // 函数防抖  在一段时间之内  只执行最后一次事件
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        // 记录当前滚动的位置
+        this.scrollTop = event.target.scrollTop
+      }, 500)
+    },
     // 上拉加载
     async onLoad () {
       console.log('开始加载文章列表数据')
@@ -176,7 +200,18 @@ export default {
         this.successText = '当前已是最新数据'
       }
     }
+  },
+  activated () {
+    console.log('唤醒')
+
+    // 可以在激活函数中  去判断当前的scrollTop是否发生了变化
+    if (this.$refs.myScroll && this.scrollTop) {
+      // 判断滚动位置是否大于0
+      // 将div滚回原来位置
+      this.$refs.myScroll.scrollTop = this.scrollTop
+    }
   }
+
 }
 </script>
 
